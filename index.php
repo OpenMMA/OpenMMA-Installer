@@ -1,3 +1,17 @@
+<?php
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
+require_once 'pages/classes.php';
+
+// Start session
+session_start();
+if (!isset($_SESSION['step']))
+    $_SESSION['step'] = 0;
+
+$page = new $STEPS[$_SESSION['step']];
+?>
 <!DOCTYPE html>
 <html>
     <head>
@@ -11,6 +25,21 @@
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link href="css/bootstrap-openmma.min.css" rel="stylesheet">
+
+        <script>
+            function submit() {
+                $.post('ajax/', {}).done((data) => {
+                    data = JSON.parse(data);
+                    switch (data.status) {
+                        case 'success':
+                            location.reload();
+                            break;
+                        default:
+                            alert('Error: ' + data.status);
+                    }
+                });
+            }
+        </script>
     </head>
     <body class="d-flex flex-column vh-100 overflow-hidden">
         <nav class="navbar bg-body-secondary border-bottom px-3">
@@ -25,13 +54,13 @@
                                                                              background-size: cover;">
             <div class="card shadow m-4 border-0 flex-grow-1" style="max-width: 500px;">
                 <div class="card-header text-center border-0 fs-4">
-                    Download OpenMMA
+                    <?php echo $page->title(); ?>
                 </div>
                 <div class="card-body">
-                    <a class="btn btn-primary btn-block" href="download.php">
-                        <i class="fas fa-download"></i>
-                        Download
-                    </a>
+                    <?php echo $page->render(); ?>
+                    <div class="d-grid">
+                        <button class="btn btn-primary" onclick="submit()"><?php echo $page->submit_label(); ?></button>
+                    </div>
                 </div>
             </div>
         </div>
